@@ -16,8 +16,7 @@
       '.olive-faq-item .olive-faq-icon{transition:transform .25s ease;}',
       '.olive-faq-item.open .olive-faq-icon{transform:rotate(45deg);}',
       '@keyframes oliveRowMove{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}',
-      '@keyframes oliveHeroMove{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}',
-      '@media (prefers-reduced-motion: reduce){.olive-motion-track{animation:none !important}}'
+      '@keyframes oliveHeroMove{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}'
     ].join('');
     document.head.appendChild(style);
   }
@@ -120,7 +119,7 @@
       track.style.display = 'flex';
       track.style.width = 'max-content';
       track.style.willChange = 'transform';
-      track.style.animation = 'oliveRowMove ' + (16 + idx * 2) + 's linear infinite';
+      track.style.animation = 'oliveRowMove ' + (10 + idx * 1.2) + 's linear infinite';
       if (idx % 2 === 1) {
         track.style.animationDirection = 'reverse';
       }
@@ -161,10 +160,8 @@
       track.style.display = 'block';
       track.style.gap = '0';
 
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        var duration = 22 + idx * 3;
-        inner.style.animation = 'oliveHeroMove ' + duration + 's linear infinite';
-      }
+      var duration = 8 + idx * 1.5;
+      inner.style.animation = 'oliveHeroMove ' + duration + 's linear infinite';
     });
   }
 
