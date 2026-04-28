@@ -42,10 +42,17 @@
     });
     if (!faqTitle) return;
 
-    var faqSection = faqTitle.closest('section');
+    var faqSection = faqTitle.closest('section') || faqTitle.parentElement;
     if (!faqSection) return;
 
-    var items = Array.from(faqSection.querySelectorAll('.space-y-2 > div.border-b'));
+    var items = Array.from(faqSection.querySelectorAll('.space-y-2 > div'));
+    if (!items.length) {
+      items = Array.from(faqSection.querySelectorAll('button')).map(function (btn) {
+        return btn.parentElement;
+      }).filter(function (el) {
+        return !!el;
+      });
+    }
     if (!items.length) return;
 
     function closeItem(item) {
@@ -69,6 +76,7 @@
       var btn = item.querySelector('button');
       var h3 = item.querySelector('h3');
       if (!btn || !h3) return;
+      btn.type = 'button';
 
       var icon = item.querySelector('svg');
       if (icon) icon.classList.add('olive-faq-icon');
@@ -80,7 +88,9 @@
       panel.setAttribute('aria-hidden', 'true');
       item.appendChild(panel);
 
-      btn.addEventListener('click', function () {
+      btn.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
         var alreadyOpen = item.classList.contains('open');
         items.forEach(closeItem);
         if (!alreadyOpen) openItem(item);
