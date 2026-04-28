@@ -16,6 +16,7 @@
       '.olive-faq-item .olive-faq-icon{transition:transform .25s ease;}',
       '.olive-faq-item.open .olive-faq-icon{transform:rotate(45deg);}',
       '@keyframes oliveRowMove{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}',
+      '@keyframes oliveHeroMove{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}',
       '@media (prefers-reduced-motion: reduce){.olive-motion-track{animation:none !important}}'
     ].join('');
     document.head.appendChild(style);
@@ -135,30 +136,34 @@
     });
 
     tracks.forEach(function (track, idx) {
-      if (!track.dataset.cloned) {
-        track.innerHTML += track.innerHTML;
-        track.dataset.cloned = '1';
-      }
+      if (track.dataset.heroReady) return;
+      track.dataset.heroReady = '1';
 
-      var startMatch = (track.getAttribute('style') || '').match(/translateX\((-?\d+(?:\.\d+)?)px\)/);
-      var x = startMatch ? parseFloat(startMatch[1]) : 0;
-      var speed = idx % 2 === 0 ? 0.35 : 0.28;
+      track.style.removeProperty('transform');
 
-      track.style.willChange = 'transform';
-      track.style.transform = 'translateX(' + x + 'px)';
+      var children = Array.from(track.children);
+      if (!children.length) return;
 
-      function tick() {
-        var loopWidth = track.scrollWidth / 2;
-        x -= speed;
-        if (Math.abs(x) >= loopWidth) {
-          x = 0;
-        }
-        track.style.transform = 'translateX(' + x + 'px)';
-        track._oliveRaf = requestAnimationFrame(tick);
-      }
+      var inner = document.createElement('div');
+      inner.className = 'olive-hero-track-inner';
+      inner.style.display = 'flex';
+      inner.style.alignItems = 'center';
+      inner.style.gap = '0.5rem';
+      inner.style.width = 'max-content';
+      inner.style.willChange = 'transform';
+
+      children.forEach(function (child) {
+        inner.appendChild(child);
+      });
+
+      inner.innerHTML += inner.innerHTML;
+      track.appendChild(inner);
+      track.style.display = 'block';
+      track.style.gap = '0';
 
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        tick();
+        var duration = 22 + idx * 3;
+        inner.style.animation = 'oliveHeroMove ' + duration + 's linear infinite';
       }
     });
   }
