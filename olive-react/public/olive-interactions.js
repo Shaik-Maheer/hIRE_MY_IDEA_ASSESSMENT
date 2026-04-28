@@ -88,16 +88,47 @@
       panel.setAttribute('aria-hidden', 'true');
       item.appendChild(panel);
 
-      btn.addEventListener('click', function (ev) {
+      if (index === 0) openItem(item);
+    });
+
+    if (!faqSection.dataset.oliveFaqBound) {
+      faqSection.dataset.oliveFaqBound = '1';
+      faqSection.addEventListener('click', function (ev) {
+        var btn = ev.target && ev.target.closest ? ev.target.closest('.olive-faq-item button') : null;
+        if (!btn) return;
         ev.preventDefault();
         ev.stopPropagation();
+        var item = btn.closest('.olive-faq-item');
+        if (!item) return;
         var alreadyOpen = item.classList.contains('open');
         items.forEach(closeItem);
         if (!alreadyOpen) openItem(item);
       });
+    }
+  }
 
-      if (index === 0) openItem(item);
-    });
+  function animateTicker(inner, speed, reverse) {
+    if (!inner || inner.dataset.oliveTickerReady) return;
+    inner.dataset.oliveTickerReady = '1';
+
+    var pos = reverse ? -(inner.scrollWidth / 2) : 0;
+    var dir = reverse ? 1 : -1;
+    var last = performance.now();
+
+    function step(now) {
+      var half = inner.scrollWidth / 2;
+      var dt = (now - last) / 1000;
+      last = now;
+      pos += dir * speed * dt;
+
+      if (dir < 0 && pos <= -half) pos = 0;
+      if (dir > 0 && pos >= 0) pos = -half;
+
+      inner.style.transform = 'translate3d(' + pos + 'px,0,0)';
+      requestAnimationFrame(step);
+    }
+
+    requestAnimationFrame(step);
   }
 
   function setupMovingIngredientImage() {
@@ -129,10 +160,7 @@
       track.style.display = 'flex';
       track.style.width = 'max-content';
       track.style.willChange = 'transform';
-      track.style.animation = 'oliveRowMove ' + (10 + idx * 1.2) + 's linear infinite';
-      if (idx % 2 === 1) {
-        track.style.animationDirection = 'reverse';
-      }
+      animateTicker(track, 22 + idx * 4, idx % 2 === 1);
     });
   }
 
@@ -170,8 +198,7 @@
       track.style.display = 'block';
       track.style.gap = '0';
 
-      var duration = 8 + idx * 1.5;
-      inner.style.animation = 'oliveHeroMove ' + duration + 's linear infinite';
+      animateTicker(inner, 40 + idx * 6, idx % 2 === 1);
     });
   }
 
@@ -183,9 +210,18 @@
     });
 
     detailPanels.forEach(function (panel) {
-      panel.style.opacity = '1';
-      panel.style.transform = 'translateY(0)';
-      panel.style.transition = 'opacity .45s ease, transform .45s ease';
+      function forceShow() {
+        panel.style.opacity = '1';
+        panel.style.transform = 'translateY(0)';
+        panel.style.transition = 'opacity .45s ease, transform .45s ease';
+      }
+
+      forceShow();
+      if (!panel.dataset.oliveObserverBound && typeof MutationObserver !== 'undefined') {
+        panel.dataset.oliveObserverBound = '1';
+        var obs = new MutationObserver(forceShow);
+        obs.observe(panel, { attributes: true, attributeFilter: ['style', 'class'] });
+      }
     });
   }
 
