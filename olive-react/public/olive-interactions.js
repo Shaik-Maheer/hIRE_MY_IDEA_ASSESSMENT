@@ -126,9 +126,47 @@
     });
   }
 
+  function setupHeroMovingStrip() {
+    var tracks = Array.from(document.querySelectorAll('div')).filter(function (el) {
+      if (typeof el.className !== 'string') return false;
+      if (el.className.indexOf('absolute z-1 top-1/2') === -1) return false;
+      if (el.className.indexOf('flex gap-2 items-center') === -1) return false;
+      return !!el.querySelector('img[src*="product-"]');
+    });
+
+    tracks.forEach(function (track, idx) {
+      if (!track.dataset.cloned) {
+        track.innerHTML += track.innerHTML;
+        track.dataset.cloned = '1';
+      }
+
+      var startMatch = (track.getAttribute('style') || '').match(/translateX\((-?\d+(?:\.\d+)?)px\)/);
+      var x = startMatch ? parseFloat(startMatch[1]) : 0;
+      var speed = idx % 2 === 0 ? 0.35 : 0.28;
+
+      track.style.willChange = 'transform';
+      track.style.transform = 'translateX(' + x + 'px)';
+
+      function tick() {
+        var loopWidth = track.scrollWidth / 2;
+        x -= speed;
+        if (Math.abs(x) >= loopWidth) {
+          x = 0;
+        }
+        track.style.transform = 'translateX(' + x + 'px)';
+        track._oliveRaf = requestAnimationFrame(tick);
+      }
+
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        tick();
+      }
+    });
+  }
+
   ready(function () {
     injectStyles();
     setupFaq();
     setupMovingIngredientImage();
+    setupHeroMovingStrip();
   });
 })();
