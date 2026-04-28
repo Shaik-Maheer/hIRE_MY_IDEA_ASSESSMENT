@@ -175,10 +175,33 @@
     });
   }
 
+  function setupHeroPhoneDetails() {
+    var detailPanels = Array.from(document.querySelectorAll('div')).filter(function (el) {
+      if (typeof el.className !== 'string') return false;
+      if (el.className.indexOf('absolute flex items-end z-100') === -1) return false;
+      return !!el.querySelector('img[src*="product-5-details.png"]');
+    });
+
+    detailPanels.forEach(function (panel) {
+      panel.style.opacity = '1';
+      panel.style.transform = 'translateY(0)';
+      panel.style.transition = 'opacity .45s ease, transform .45s ease';
+    });
+  }
+
+  function safeRun(fn) {
+    try {
+      fn();
+    } catch (err) {
+      console.error('[olive-interactions] failed:', err);
+    }
+  }
+
   ready(function () {
     injectStyles();
-    setupFaq();
-    setupMovingIngredientImage();
-    setupHeroMovingStrip();
+    safeRun(setupFaq);
+    safeRun(setupMovingIngredientImage);
+    safeRun(setupHeroMovingStrip);
+    safeRun(setupHeroPhoneDetails);
   });
 })();
