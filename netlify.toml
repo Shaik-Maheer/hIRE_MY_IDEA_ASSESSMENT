@@ -2,3 +2,13 @@
   base = "olive-react"
   command = "npm run build"
   publish = "dist"
+
+[[redirects]]
+  from = "/"
+  to = "/olive-clone.html"
+  status = 200
+
+[[headers]]
+  for = "/olive-interactions.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
